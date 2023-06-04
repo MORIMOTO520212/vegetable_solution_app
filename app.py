@@ -4,11 +4,10 @@ from PIL import Image, ImageTk, ImageOps
 import cv2
 
 class App(tk.Frame):
-    def __init__(self, window_name, window_size):
+    def __init__(self, window_name):
         self.root = tk.Tk()           # rootメインウィンドウの設定
         super().__init__(self.root)   # tkinterクラスを継承
         self.root.title(window_name)    # ウィンドウタイトル
-        self.root.geometry(window_size) # ウィンドウ縦横サイズ
         # メインフレームの作成
         self.frame = tk.Frame(self.root)
         self.frame.pack(fill=tk.BOTH, padx=20, pady=10) # 設置
@@ -46,22 +45,22 @@ class App(tk.Frame):
         # NumPyのndarrayからPillowのImageへ変換
         pil_image = Image.fromarray(cv_image)
         # キャンバスのサイズを取得
-        canvas_width = self.canvas.winfo_width()
-        canvas_height = self.canvas.winfo_height()
+        self.canvas_width = self.canvas.winfo_width()
+        self.canvas_height = self.canvas.winfo_height()
         # 画像のアスペクト比（縦横比）を崩さずに指定したサイズ（キャンバスのサイズ）全体に画像をリサイズする
-        pil_image = ImageOps.pad(pil_image, (canvas_width, canvas_height))
+        pil_image = ImageOps.pad(pil_image, (self.canvas_width, self.canvas_height))
         # PIL.ImageからPhotoImageへ変換する
-        photo_image = ImageTk.PhotoImage(image=pil_image)
+        self.photo_image = ImageTk.PhotoImage(image=pil_image)
         # 画像の描画
         self.canvas.create_image(
-                canvas_width / 2,  # 画像表示位置(Canvasの中心)
-                canvas_height / 2,                   
-                image=photo_image  # 表示画像データ
+                self.canvas_width / 2,  # 画像表示位置(Canvasの中心)
+                self.canvas_height / 2,                   
+                image=self.photo_image  # 表示画像データ
                 )
         # 画面の更新を10msecごとに行う
         self.camera_run_id = self.after(10, self.camera)
 
 
 if __name__ == '__main__':
-    app = App("application", "400x300")
+    app = App("application")
     app.mainloop()
