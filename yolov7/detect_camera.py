@@ -15,43 +15,55 @@ from yolov7.utils.torch_utils import select_device, load_classifier, time_synchr
 
 
 def detect():
-    source = "0"
-    weights = "../weights/detect_tomato.pt"
-    view_img = ""
-    save_txt = ""
-    imgsz = ""
-    trace = ""
-    save_img = ""
-    webcam = source.isnumeric() or source.endswith('.txt') or source.lower().startswith(
-        ('rtsp://', 'rtmp://', 'http://', 'https://'))
+    webcam    = True
+    source    = "0" # ソース
+    weights   = "../weights/detect_tomato.pt" # 重み
+    img_size  = 640 # inference size (pixels)
+    save_img  = False # save inference images
+    view_img  = False  # display results
+    conf_thres = 0.25  # object confidence threshold
+    name      = "exp"         # 結果の保存ディレクトリ名
+    project   = "runs/detect" # 結果の保存ディレクトリ階層
+    save_txt  = True
+    save_conf = True
+    imgsz     = img_size
+    iou_thres = 0.45          # IOU threshold for NMS
+    classes   = None
+    trace     = False
+    device    = ""            # cuda device, i.e. 0 or 0,1,2,3 or cpu
+    exist_ok  = ""            # existing project/name ok, do not increment
+    augment   = False         # augmented inference
+    trace     = False         # don`t trace model
+    agnostic_nms = False      # class-agnostic NMS
+    
 
-    # Directories
-    save_dir = Path(increment_path(Path(opt.project) / opt.name, exist_ok=opt.exist_ok))  # increment run
+    # 保存ディレクトリの作成
+    save_dir = Path(increment_path(Path(project) / name, exist_ok=exist_ok))  # increment run
     (save_dir / 'labels' if save_txt else save_dir).mkdir(parents=True, exist_ok=True)  # make dir
 
-    # Initialize
+    # 初期化
     set_logging()
-    device = select_device(opt.device)
+    device = select_device(device)
     half = device.type != 'cpu'  # half precision only supported on CUDA
 
-    # Load model
+    # モデル読み込み
     model = attempt_load(weights, map_location=device)  # load FP32 model
     stride = int(model.stride.max())  # model stride
     imgsz = check_img_size(imgsz, s=stride)  # check img_size
 
     if trace:
-        model = TracedModel(model, device, opt.img_size)
+        model = TracedModel(model, device, img_size)
 
     if half:
         model.half()  # to FP16
 
-    # Second-stage classifier
+    # 第2分類器ResNetの読み込み
     classify = False
     if classify:
         modelc = load_classifier(name='resnet101', n=2)  # initialize
         modelc.load_state_dict(torch.load('weights/resnet101.pt', map_location=device)['model']).to(device).eval()
 
-    # Set Dataloader
+    # データローダーを設置
     vid_path, vid_writer = None, None
     if webcam:
         view_img = check_imshow()
@@ -84,16 +96,16 @@ def detect():
             old_img_h = img.shape[2]
             old_img_w = img.shape[3]
             for i in range(3):
-                model(img, augment=opt.augment)[0]
+                model(img, augment=augment)[0]
 
         # Inference
         t1 = time_synchronized()
         with torch.no_grad():   # Calculating gradients would cause a GPU memory leak
-            pred = model(img, augment=opt.augment)[0]
+            pred = model(img, augment=augment)[0]
         t2 = time_synchronized()
 
         # Apply NMS
-        pred = non_max_suppression(pred, opt.conf_thres, opt.iou_thres, classes=opt.classes, agnostic=opt.agnostic_nms)
+        pred = non_max_suppression(pred, conf_thres, iou_thres, classes=classes, agnostic=agnostic_nms)
         t3 = time_synchronized()
 
         # Apply Classifier
@@ -124,7 +136,7 @@ def detect():
                 for *xyxy, conf, cls in reversed(det):
                     if save_txt:  # Write to file
                         xywh = (xyxy2xywh(torch.tensor(xyxy).view(1, 4)) / gn).view(-1).tolist()  # normalized xywh
-                        line = (cls, *xywh, conf) if opt.save_conf else (cls, *xywh)  # label format
+                        line = (cls, *xywh, conf) if save_conf else (cls, *xywh)  # label format
                         with open(txt_path + '.txt', 'a') as f:
                             f.write(('%g ' * len(line)).rstrip() % line + '\n')
 
