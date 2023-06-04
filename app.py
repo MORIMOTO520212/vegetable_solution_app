@@ -56,7 +56,7 @@ class App(tk.Frame):
         # 画像の描画
         self.canvas.create_image(
                 self.canvas_width / 2,  # 画像表示位置(Canvasの中心)
-                self.canvas_height / 2,                   
+                self.canvas_height / 2,
                 image=self.photo_image  # 表示画像データ
                 )
         # 画面の更新を10msecごとに行う
