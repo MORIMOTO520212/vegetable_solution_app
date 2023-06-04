@@ -3,6 +3,16 @@
 
 >Author: Nitanda, Morimoto, Kodama, Itakura, Kudou
 
+## やること
+detectクラスを作って、  
+```python
+def set_camera(self):
+    self.model = detect(weightsPath, cameraId) # モデル読み込みとカメラ起動
+
+def camera(self):
+    img = model.search()
+```
+
 ## 説明
 野菜の葉状疾患の検出と、収穫可能な実の検出を行うシステム
 

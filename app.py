@@ -3,6 +3,8 @@ from tkinter import filedialog
 from PIL import Image, ImageTk, ImageOps
 import cv2
 
+
+# アプリケーション画面
 class App(tk.Frame):
     def __init__(self, window_name):
         self.root = tk.Tk()           # rootメインウィンドウの設定

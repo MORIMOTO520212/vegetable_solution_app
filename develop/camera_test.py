@@ -2,7 +2,7 @@ import cv2
 import check_devices
 
 # カメラをオープンする
-capture = cv2.VideoCapture(1)
+capture = cv2.VideoCapture(0)
 
 # カメラがオープン出来たか？
 camera_opened = capture.isOpened()

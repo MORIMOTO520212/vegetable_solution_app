@@ -1,2 +1,3 @@
 # YOLOv7はアップロードしない
+!yolov7/detect_camera.py
 yolov7/*
