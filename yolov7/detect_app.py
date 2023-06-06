@@ -32,22 +32,39 @@ class App(tk.Frame):
     global save_dir
     global colors
     global names
+    # global vegtable_num
     def __init__(self, window_name):
         self.root = tk.Tk()           # rootメインウィンドウの設定
         super().__init__(self.root)   # tkinterクラスを継承
         self.root.title(window_name)    # ウィンドウタイトル
         # メインフレームの作成
-        self.frame = tk.Frame(self.root)
+        self.frame = tk.Frame(
+            self.root
+            )
         self.frame.pack(fill=tk.BOTH, padx=20, pady=10) # 設置
         # キャンバス作成
-        self.canvas = tk.Canvas(self.frame)
+        self.canvas = tk.Canvas(
+            self.frame,
+            width=1280,
+            height=720)
         self.canvas.pack(expand=True, fill=tk.BOTH)
         # カメラ起動ボタン
         camera_start_btn = tk.Button(self.frame, text="カメラ起動", command=self.set_camera)
         camera_start_btn.pack(fill='x', side='left', padx=10)
 
         # 学習かいし
-        camera_run_btn = tk.Button(self.frame, text="学習開始", command=self.detect_main)
+        camera_run_btn = tk.Button(self.frame, text="トマト重み", command=lambda:[self.set_tomato(), self.detect_main()])
+        # camera_run_btn = tk.Button(self.frame, text="学習開始", command=self.detect_main(vegtable_num=0))
+        camera_run_btn.pack(fill='x', side='left', padx=10)
+        
+        # camera_run_btn = tk.Button(self.frame, text="学習開始", command=self.detect_main)
+        camera_run_btn = tk.Button(self.frame, text="枝豆重み", command=lambda:[self.set_edamame(), self.detect_main()])
+        camera_run_btn.pack(fill='x', side='left', padx=10)
+
+        camera_run_btn = tk.Button(self.frame, text="きゅうり重み", command=lambda:[self.set_kyurin(), self.detect_main()])
+        camera_run_btn.pack(fill='x', side='left', padx=10)
+
+        camera_run_btn = tk.Button(self.frame, text="パイマン重み", command=lambda:[self.set_poiman(), self.detect_main()])
         camera_run_btn.pack(fill='x', side='left', padx=10)
         # カメラ開始ボタン
         camera_run_btn = tk.Button(self.frame, text="カメラ開始", command=self.recog)
@@ -58,6 +75,27 @@ class App(tk.Frame):
         camera_exit_btn.pack(fill='x', side='left', padx=10)
         print("初期化完了.")
 
+    def set_tomato(self):
+        # global vegtable_num
+        self.vegtable_num = 0
+        print("self.vegtable_num トマト")
+    
+    def set_binusu(self):
+        # global vegtable_num
+        self.vegtable_num = 1
+        print("self.vegtable_num 茄子")
+    def set_edamame(self):
+        # global vegtable_num
+        self.vegtable_num = 2
+        print("self.vegtable_num 枝豆")
+    def set_kyurin(self):
+        # global vegtable_num
+        self.vegtable_num = 3
+        print("self.vegtable_num きゅうり")
+    def set_poiman(self):
+        # global vegtable_num
+        self.vegtable_num = 4
+        print("self.vegtable_num パイモン")
     # カメラ起動
     def set_camera(self):
         self.capture = cv2.VideoCapture(0)
@@ -154,12 +192,15 @@ class App(tk.Frame):
         global save_dir
         global colors
         global names
-        weights   = "../weights/detect_tomato.pt" # 重み
+        # global vegtable_num
+        weights   = ["../weights/detect_tomato.pt","../weights/detect_binusu.pt","../weights/detect_edamame.pt","../weights/detect_kyurin.pt","../weights/detect_poiman.pt"] # 重み
         project   = "runs/detect" # 結果の保存ディレクトリ階層
         save_txt  = True
         name      = "exp"         # 結果の保存ディレクトリ名
         exist_ok  = ""            # existing project/name ok, do not increment
         device    = ""            # cuda device, i.e. 0 or 0,1,2,3 or cpu
+        # vegtable_num = 0
+        print("vegtable_num,vegtable_num",self.vegtable_num)
 
         # 保存ディレクトリの作成
         save_dir = Path(increment_path(Path(project) / name, exist_ok=exist_ok))  # increment run
@@ -172,7 +213,7 @@ class App(tk.Frame):
         print("device",device)
 
         # モデル読み込み
-        model = attempt_load(weights, map_location=device)  # load FP32 model
+        model = attempt_load(weights[self.vegtable_num], map_location=device)  # load FP32 model
         dataset = App.detect_detaset(model)
 
          # name モデルの名前を取得している
